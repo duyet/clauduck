@@ -12,3 +12,8 @@ wheels/
 # Database files (generated, not committed)
 *.db
 *.db.wal
+
+# Node.js
+node_modules/
+dist/
+*.tsbuildinfo

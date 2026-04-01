@@ -4,7 +4,36 @@ Analyze your Claude Code usage with DuckDB. Load your local `~/.claude` session 
 
 Inspired by [ClickHouse/alexeyprompts](https://github.com/ClickHouse/alexeyprompts), but using DuckDB for zero-setup local analytics.
 
-## Quick Start (One-liner for Claude Code)
+## Quick Start
+
+```bash
+npx clauduck
+```
+
+This will:
+1. Load all your `~/.claude` session data into DuckDB (`~/.claude/clauduck.db`)
+2. Run 15 built-in analytics queries
+3. Print results to the terminal
+
+### Interactive TUI
+
+```bash
+npx clauduck tui
+```
+
+Browse pre-built queries, run custom SQL, and explore your data interactively.
+
+### Date Filtering
+
+```bash
+npx clauduck --last 7d                # last 7 days
+npx clauduck --last 4w                # last 4 weeks
+npx clauduck --since 2025-01-01       # from a date
+npx clauduck --since 2025-01-01 --until 2025-06-30  # date range
+npx clauduck --source projects        # only project sessions
+```
+
+## Claude Code Integration
 
 Copy and paste this into your Claude Code session:
 
@@ -12,39 +41,7 @@ Copy and paste this into your Claude Code session:
 Read and follow the instructions at https://raw.githubusercontent.com/duyet/clauduck/main/CLAUDE.md — set up ClauDuck locally and give me insights about my Claude Code usage
 ```
 
-Claude will automatically:
-1. Read the setup instructions
-2. Detect if it's already in the ClauDuck project (skips clone) or clone fresh
-3. Install dependencies and load your `~/.claude` session data into DuckDB
-4. Run analytics and present your insights
-
-> **Already inside the repo?** The same prompt works — Claude detects `load.py` in the current directory and skips cloning.
-
-## Manual Setup
-
-### Prerequisites
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/) (recommended) or pip
-
-### Install & Run
-
-```bash
-git clone https://github.com/duyet/clauduck.git
-cd clauduck
-uv sync
-uv run python load.py    # Load your session data
-uv run python query.py   # Run all analytics
-```
-
-### Interactive Queries
-
-```bash
-uv run python -c "
-import duckdb
-con = duckdb.connect('clauduck.db')
-con.sql('SELECT * FROM sessions ORDER BY first_ts DESC LIMIT 10').show()
-"
-```
+Claude will automatically set up, load data, run analytics, and present a rich dashboard.
 
 ## What Gets Analyzed
 
@@ -54,15 +51,19 @@ con.sql('SELECT * FROM sessions ORDER BY first_ts DESC LIMIT 10').show()
 |--------|------|---------|
 | History | `~/.claude/history.jsonl` | User prompt log with timestamps and project |
 | Sessions | `~/.claude/projects/*/*.jsonl` | Full conversation transcripts with tool calls, tokens, models |
+| Transcripts | `~/.claude/transcripts/*.jsonl` | Lightweight transcripts (older sessions) |
+| Metadata | `~/.claude/sessions/*.json` | Session metadata (pid, cwd, kind) |
 
-### Database Tables
+### Database Schema
 
-| Table | Description |
-|-------|-------------|
+All data lives in a single `events` table with a `type` column:
+
+| Type | Description |
+|------|-------------|
+| `session` | One row per session with aggregated stats (tokens, tools, duration) |
+| `message` | Individual messages with token counts and tool names |
+| `tool_call` | Every tool invocation (Bash, Read, Edit, etc.) |
 | `history` | Every prompt you've typed with timestamps |
-| `sessions` | One row per session with aggregated stats (tokens, tools, duration) |
-| `messages` | Individual messages with token counts and tool names |
-| `tool_calls` | Every tool invocation (Bash, Read, Edit, etc.) |
 
 ### Built-in Analytics (15 queries)
 
@@ -84,81 +85,45 @@ con.sql('SELECT * FROM sessions ORDER BY first_ts DESC LIMIT 10').show()
 | 14 | Version history | Claude Code versions used |
 | 15 | Repeated prompts | Your most-typed commands |
 
-### Date Range Filtering
-
-```bash
-uv run python query.py                          # all time (default)
-uv run python query.py --last 7d                # last 7 days
-uv run python query.py --last 4w                # last 4 weeks
-uv run python query.py --since 2025-01-01       # from a date
-uv run python query.py --since 2025-01-01 --until 2025-06-30  # date range
-```
-
-## Example Dashboard Output
-
-When run via Claude Code (one-liner), you get a rich dashboard:
-
-**🦆 ClauDuck — Your Claude Code Analytics Dashboard**
-**Period:** 2025-01-15 → 2025-07-01 (167 days)
-
-| 📊 Sessions | 💬 Messages | 🪙 Tokens | 🛠️ Tool Calls | ⏱️ Hours | 📁 Projects |
-|:-----------:|:-----------:|:---------:|:-------------:|:--------:|:-----------:|
-| 2,841       | 312,500     | 248.3M    | 105,720       | 3,210    | 18          |
-
-🏆 **Top Projects**
-```
- 1. my-saas-app         82.1M ██████████████████████████████░░
- 2. api-gateway         51.4M ███████████████████░░░░░░░░░░░░░
- 3. data-pipeline       38.7M ██████████████░░░░░░░░░░░░░░░░░░
- 4. mobile-app          22.9M ████████░░░░░░░░░░░░░░░░░░░░░░░░
- 5. infra-terraform     15.3M █████░░░░░░░░░░░░░░░░░░░░░░░░░░░
-```
-
-🔧 **Tool Usage**
-```
- Bash            ██████████████████████████████ 42,130
- Read            ████████████░░░░░░░░░░░░░░░░░░ 18,945
- Edit            █████████░░░░░░░░░░░░░░░░░░░░░ 14,220
- Grep            ████░░░░░░░░░░░░░░░░░░░░░░░░░░  6,871
- Agent           ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  4,502
-```
-
-> 🎯 **Fun Facts**
->
-> 🌙 41,200 messages sent between midnight and 2 AM — night owl confirmed.
->
-> 🏃 Longest marathon session: 8.2 hours straight on my-saas-app.
->
-> 🤖 Bash is your most-called tool (42K times) — terminal over everything.
-
 ## Custom Queries
 
-The database is standard DuckDB. Write any SQL you want:
+The database is standard DuckDB with a single `events` table. After running `npx clauduck`, you can query it directly:
+
+```bash
+duckdb ~/.claude/clauduck.db
+```
 
 ```sql
 -- Find sessions where you used Agent tool more than 10 times
 SELECT session_id, project_name, tool_call_count, duration_minutes
-FROM sessions
-WHERE 'Agent' = ANY(tools_used) AND tool_call_count > 100
+FROM events
+WHERE type='session' AND 'Agent' = ANY(tools_used) AND tool_call_count > 100
 ORDER BY tool_call_count DESC;
 
 -- Average tokens per hour by project
 SELECT
     project_name,
     round(sum(total_input_tokens + total_output_tokens) / nullif(sum(duration_minutes / 60.0), 0) / 1e6, 2) as tokens_M_per_hour
-FROM sessions
-WHERE duration_minutes > 10
+FROM events
+WHERE type='session' AND duration_minutes > 10
 GROUP BY 1
 ORDER BY 2 DESC;
 ```
 
+## Development
+
+```bash
+git clone https://github.com/duyet/clauduck.git
+cd clauduck
+bun install
+bun run build     # Build with tsup
+bun run test      # Run tests with vitest
+bun run dev       # Run CLI in dev mode (tsx)
+```
+
 ## Privacy
 
-All data stays local. ClauDuck reads only from your `~/.claude` directory and writes only to `clauduck.db` in the project folder. Nothing is sent to any server.
-
-## Re-loading
-
-Run `uv run python load.py` anytime to rebuild the database with latest session data. The database is recreated from scratch each time.
+All data stays local. ClauDuck reads only from your `~/.claude` directory and writes to `~/.claude/clauduck.db`. Nothing is sent to any server.
 
 ## License
 

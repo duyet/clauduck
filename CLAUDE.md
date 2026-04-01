@@ -6,43 +6,39 @@ Follow these steps exactly. Do not skip any step.
 
 ## Step 1: Detect environment and install
 
-First, check if you are already inside the ClauDuck project directory. Look for `load.py` and `query.py` in the current working directory.
+First, check if you are already inside the ClauDuck project directory. Look for `package.json` in the current working directory with `"name": "clauduck"`.
 
-- **If `load.py` exists in the current directory**: you are already in the ClauDuck project. Skip cloning — just run `uv sync`.
-- **Otherwise**: clone the repo and cd into it:
+- **If inside the ClauDuck project**: run `bun install` (or `npm install`) then `bun run build`.
+- **Otherwise**: run directly with npx — no cloning needed:
 
+```bash
+npx clauduck
+```
+
+Or if you want to clone for development:
 ```bash
 git clone https://github.com/duyet/clauduck.git /tmp/clauduck
 cd /tmp/clauduck
-uv sync
+bun install && bun run build
 ```
 
-If `uv` is not installed, install it first:
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+## Step 2: Load session data and run analytics
 
-## Step 2: Load session data
-
-Run the loader to parse all Claude Code session data from `~/.claude` into DuckDB:
+Run ClauDuck to parse all Claude Code session data from `~/.claude` into DuckDB and run analytics:
 
 ```bash
-uv run python load.py
+npx clauduck
 ```
 
 This reads:
 - `~/.claude/history.jsonl` — prompt history
 - `~/.claude/projects/*/*.jsonl` — full session transcripts
+- `~/.claude/transcripts/*.jsonl` — lightweight transcripts
+- `~/.claude/sessions/*.json` — session metadata
 
-It creates `clauduck.db` with 4 tables: `history`, `sessions`, `messages`, `tool_calls`.
+It creates `~/.claude/clauduck.db` with a single `events` table (types: session, message, tool_call, history).
 
-## Step 3: Run analytics
-
-```bash
-uv run python query.py
-```
-
-This runs 15 built-in analytics queries and prints results.
+Then runs 15 built-in analytics queries and prints results.
 
 ## Step 4: Present the Dashboard
 
@@ -128,7 +124,7 @@ Query the data grouped by day-of-week and hour:
 SELECT extract(isodow FROM timestamp)::INT as dow,
        extract(hour FROM timestamp)::INT as hour,
        count(*) as msgs
-FROM messages WHERE timestamp IS NOT NULL GROUP BY dow, hour ORDER BY dow, hour
+FROM events WHERE type='message' AND timestamp IS NOT NULL GROUP BY dow, hour ORDER BY dow, hour
 ```
 
 Render as:
@@ -225,24 +221,24 @@ Beyond query.py output, run these additional queries for the dashboard:
 -- Busiest single day
 SELECT date_trunc('day', first_ts)::DATE as d, count(*) as sessions,
        sum(user_messages + assistant_messages) as msgs
-FROM sessions WHERE first_ts IS NOT NULL GROUP BY d ORDER BY msgs DESC LIMIT 1;
+FROM events WHERE type='session' AND first_ts IS NOT NULL GROUP BY d ORDER BY msgs DESC LIMIT 1;
 
 -- Day x hour heatmap data
 SELECT extract(isodow FROM timestamp)::INT as dow,
        extract(hour FROM timestamp)::INT as hour,
        count(*) as msgs
-FROM messages WHERE timestamp IS NOT NULL GROUP BY dow, hour ORDER BY dow, hour;
+FROM events WHERE type='message' AND timestamp IS NOT NULL GROUP BY dow, hour ORDER BY dow, hour;
 
 -- Average session length trend
 SELECT date_trunc('week', first_ts)::DATE as w,
        round(avg(duration_minutes), 0) as avg_min,
        round(avg(user_messages), 0) as avg_user_msgs
-FROM sessions WHERE first_ts IS NOT NULL AND duration_minutes > 0
+FROM events WHERE type='session' AND first_ts IS NOT NULL AND duration_minutes > 0
 GROUP BY w ORDER BY w;
 
 -- Most tool-heavy single session
 SELECT project_name, tool_call_count, duration_minutes, first_ts::DATE
-FROM sessions ORDER BY tool_call_count DESC LIMIT 1;
+FROM events WHERE type='session' ORDER BY tool_call_count DESC LIMIT 1;
 ```
 
 ## Step 5: Offer interactive exploration
@@ -259,25 +255,29 @@ After the dashboard, invite the user to explore further:
 > - "What's my average session length by project?"
 > - "Show tool usage trends over time"
 >
-> **Tables:** `sessions` · `messages` · `tool_calls` · `history`
+> **Table:** `events` (filter by `type` column)
 
 ### Schema Reference (for custom queries)
 
-#### `sessions`
+#### `events` table — single unified table
+
+**type column** determines the row kind: `'session'`, `'message'`, `'tool_call'`, `'history'`
+
+**Session rows** (`WHERE type='session'`):
 - `session_id`, `project_name`, `first_ts`, `last_ts`, `duration_minutes`
 - `user_messages`, `assistant_messages`, `tool_call_count`
 - `total_input_tokens`, `total_output_tokens`, `total_cache_read_tokens`
 - `models_used` (array), `tools_used` (array)
 - `git_branch`, `version`
 
-#### `messages`
-- `session_id`, `project_name`, `type` (user/assistant), `timestamp`
+**Message rows** (`WHERE type='message'`):
+- `session_id`, `project_name`, `message_type` (user/assistant), `timestamp`
 - `model`, `input_tokens`, `output_tokens`, `cache_read_tokens`
 - `content_text`, `tool_names` (array)
 
-#### `tool_calls`
+**Tool call rows** (`WHERE type='tool_call'`):
 - `session_id`, `project_name`, `timestamp`, `model`
 - `tool_name`, `tool_use_id`
 
-#### `history`
-- `display` (prompt text), `timestamp`, `ts`, `project`
+**History rows** (`WHERE type='history'`):
+- `display` (prompt text), `timestamp`, `session_id`
