@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Run analytics queries against the ClaudeDuck database."""
+"""Run analytics queries against the ClauDuck database."""
 
 import sys
 from pathlib import Path
 import duckdb
 
-DB_PATH = Path(__file__).parent / "claudeduck.db"
+DB_PATH = Path(__file__).parent / "clauduck.db"
 
 
 def run_query(con, title: str, sql: str):
@@ -270,8 +270,8 @@ def main():
 
     con.close()
     print(f"\n{'=' * 70}")
-    print("  Database: claudeduck.db")
-    print("  Interactive: uv run python -c \"import duckdb; con=duckdb.connect('claudeduck.db'); print(con.sql('SELECT * FROM sessions LIMIT 5'))\"")
+    print("  Database: clauduck.db")
+    print("  Interactive: uv run python -c \"import duckdb; con=duckdb.connect('clauduck.db'); print(con.sql('SELECT * FROM sessions LIMIT 5'))\"")
     print(f"{'=' * 70}")
 
 

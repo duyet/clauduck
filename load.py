@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import duckdb
 
 CLAUDE_DIR = Path.home() / ".claude"
-DB_PATH = Path(__file__).parent / "claudeduck.db"
+DB_PATH = Path(__file__).parent / "clauduck.db"
 
 
 def create_tables(con: duckdb.DuckDBPyConnection):

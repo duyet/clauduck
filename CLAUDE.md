@@ -1,6 +1,6 @@
-# ClaudeDuck Setup Instructions
+# ClauDuck Setup Instructions
 
-You are setting up ClaudeDuck — a DuckDB-based analytics tool for Claude Code session data.
+You are setting up ClauDuck — a DuckDB-based analytics tool for Claude Code session data.
 
 Follow these steps exactly. Do not skip any step.
 
@@ -31,7 +31,7 @@ This reads:
 - `~/.claude/history.jsonl` — prompt history
 - `~/.claude/projects/*/*.jsonl` — full session transcripts
 
-It creates `claudeduck.db` with 4 tables: `history`, `sessions`, `messages`, `tool_calls`.
+It creates `clauduck.db` with 4 tables: `history`, `sessions`, `messages`, `tool_calls`.
 
 ## Step 3: Run analytics
 
@@ -60,7 +60,7 @@ Tell the user they can ask follow-up questions. You can run custom SQL queries a
 
 ```python
 import duckdb
-con = duckdb.connect('claudeduck.db')
+con = duckdb.connect('clauduck.db')
 con.sql("YOUR QUERY HERE").show()
 ```
 

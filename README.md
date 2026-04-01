@@ -1,4 +1,4 @@
-# ClaudeDuck
+# ClauDuck
 
 Analyze your Claude Code usage with DuckDB. Load your local `~/.claude` session history into a queryable database and get insights about your coding patterns, token usage, costs, and tool usage.
 
@@ -9,7 +9,7 @@ Inspired by [ClickHouse/alexeyprompts](https://github.com/ClickHouse/alexeypromp
 Copy and paste this into your Claude Code session:
 
 ```
-Read and follow the instructions at https://raw.githubusercontent.com/duyet/clauduck/main/CLAUDE.md — set up ClaudeDuck locally and give me insights about my Claude Code usage
+Read and follow the instructions at https://raw.githubusercontent.com/duyet/clauduck/main/CLAUDE.md — set up ClauDuck locally and give me insights about my Claude Code usage
 ```
 
 Claude will automatically:
@@ -28,7 +28,7 @@ Claude will automatically:
 
 ```bash
 git clone https://github.com/duyet/clauduck.git
-cd claudeduck
+cd clauduck
 uv sync
 uv run python load.py    # Load your session data
 uv run python query.py   # Run all analytics
@@ -39,7 +39,7 @@ uv run python query.py   # Run all analytics
 ```bash
 uv run python -c "
 import duckdb
-con = duckdb.connect('claudeduck.db')
+con = duckdb.connect('clauduck.db')
 con.sql('SELECT * FROM sessions ORDER BY first_ts DESC LIMIT 10').show()
 "
 ```
@@ -128,7 +128,7 @@ ORDER BY 2 DESC;
 
 ## Privacy
 
-All data stays local. ClaudeDuck reads only from your `~/.claude` directory and writes only to `claudeduck.db` in the project folder. Nothing is sent to any server.
+All data stays local. ClauDuck reads only from your `~/.claude` directory and writes only to `clauduck.db` in the project folder. Nothing is sent to any server.
 
 ## Re-loading
 

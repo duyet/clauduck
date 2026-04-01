@@ -1,5 +1,5 @@
 [project]
-name = "claudeduck"
+name = "clauduck"
 version = "0.1.0"
 description = "Analyze your Claude Code usage with DuckDB"
 readme = "README.md"

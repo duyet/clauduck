@@ -1,7 +1,7 @@
 -- ============================================================
--- ClaudeDuck: Claude Code Session Analytics
--- Run: duckdb claudeduck.db < queries.sql
--- Or open interactive: duckdb claudeduck.db
+-- ClauDuck: Claude Code Session Analytics
+-- Run: duckdb clauduck.db < queries.sql
+-- Or open interactive: duckdb clauduck.db
 -- ============================================================
 
 -- 1. Overview
