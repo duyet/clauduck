@@ -57,14 +57,14 @@ con.sql('SELECT * FROM sessions ORDER BY first_ts DESC LIMIT 10').show()
 
 ### Database Tables
 
-| Table | Rows | Description |
-|-------|------|-------------|
-| `history` | ~25K | Every prompt you've typed |
-| `sessions` | ~1.4K | One row per session with aggregated stats |
-| `messages` | ~188K | Individual messages with token counts |
-| `tool_calls` | ~63K | Every tool invocation (Bash, Read, Edit, etc.) |
+| Table | Description |
+|-------|-------------|
+| `history` | Every prompt you've typed with timestamps |
+| `sessions` | One row per session with aggregated stats (tokens, tools, duration) |
+| `messages` | Individual messages with token counts and tool names |
+| `tool_calls` | Every tool invocation (Bash, Read, Edit, etc.) |
 
-### Analytics Queries (18 built-in)
+### Built-in Analytics (15 queries)
 
 | # | Query | What it shows |
 |---|-------|---------------|
@@ -83,29 +83,53 @@ con.sql('SELECT * FROM sessions ORDER BY first_ts DESC LIMIT 10').show()
 | 13 | Git branches | Activity per branch |
 | 14 | Version history | Claude Code versions used |
 | 15 | Repeated prompts | Your most-typed commands |
-| 16 | Token efficiency | Output/input ratio by project |
-| 17 | Tool usage by project | Which tools each project uses |
-| 18 | Session performance | Duration vs token analysis |
 
-## Example Output
+### Date Range Filtering
 
+```bash
+uv run python query.py                          # all time (default)
+uv run python query.py --last 7d                # last 7 days
+uv run python query.py --last 4w                # last 4 weeks
+uv run python query.py --since 2025-01-01       # from a date
+uv run python query.py --since 2025-01-01 --until 2025-06-30  # date range
 ```
-======================================================================
-  1. OVERVIEW
-======================================================================
-total_sessions | total_projects | tokens_M | total_hours | tool_calls
-     1,394     |      23        |  167.7   |   1,770.5   |   62,984
 
-======================================================================
-  4. TOOL USAGE RANKING
-======================================================================
-tool_name  | calls  | sessions | projects
-Bash       | 28,478 |    518   |    22
-Read       | 11,779 |    575   |    21
-Edit       |  8,763 |    453   |    17
-Grep       |  3,704 |    397   |    12
-Agent      |  2,701 |    423   |    16
+## Example Dashboard Output
+
+When run via Claude Code (one-liner), you get a rich dashboard:
+
+**🦆 ClauDuck — Your Claude Code Analytics Dashboard**
+**Period:** 2025-01-15 → 2025-07-01 (167 days)
+
+| 📊 Sessions | 💬 Messages | 🪙 Tokens | 🛠️ Tool Calls | ⏱️ Hours | 📁 Projects |
+|:-----------:|:-----------:|:---------:|:-------------:|:--------:|:-----------:|
+| 2,841       | 312,500     | 248.3M    | 105,720       | 3,210    | 18          |
+
+🏆 **Top Projects**
 ```
+ 1. my-saas-app         82.1M ██████████████████████████████░░
+ 2. api-gateway         51.4M ███████████████████░░░░░░░░░░░░░
+ 3. data-pipeline       38.7M ██████████████░░░░░░░░░░░░░░░░░░
+ 4. mobile-app          22.9M ████████░░░░░░░░░░░░░░░░░░░░░░░░
+ 5. infra-terraform     15.3M █████░░░░░░░░░░░░░░░░░░░░░░░░░░░
+```
+
+🔧 **Tool Usage**
+```
+ Bash            ██████████████████████████████ 42,130
+ Read            ████████████░░░░░░░░░░░░░░░░░░ 18,945
+ Edit            █████████░░░░░░░░░░░░░░░░░░░░░ 14,220
+ Grep            ████░░░░░░░░░░░░░░░░░░░░░░░░░░  6,871
+ Agent           ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  4,502
+```
+
+> 🎯 **Fun Facts**
+>
+> 🌙 41,200 messages sent between midnight and 2 AM — night owl confirmed.
+>
+> 🏃 Longest marathon session: 8.2 hours straight on my-saas-app.
+>
+> 🤖 Bash is your most-called tool (42K times) — terminal over everything.
 
 ## Custom Queries
 

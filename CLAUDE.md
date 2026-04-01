@@ -85,11 +85,11 @@ Scale bars proportionally to the highest value. Use **bold** for the #1 project:
 🏆 **Top Projects by Token Usage**
 
 ```
- 1. monorepo            56.3M ██████████████████████████████░░
- 2. clickhouse/monitor  35.7M ███████████████████░░░░░░░░░░░░░
- 3. llama-index         33.4M ██████████████████░░░░░░░░░░░░░░
- 4. stamp               15.2M ████████░░░░░░░░░░░░░░░░░░░░░░░░
- 5. agentstate          10.6M █████░░░░░░░░░░░░░░░░░░░░░░░░░░░
+ 1. my-saas-app         82.1M ██████████████████████████████░░
+ 2. api-gateway         51.4M ███████████████████░░░░░░░░░░░░░
+ 3. data-pipeline       38.7M ██████████████░░░░░░░░░░░░░░░░░░
+ 4. mobile-app          22.9M ████████░░░░░░░░░░░░░░░░░░░░░░░░
+ 5. infra-terraform     15.3M █████░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ```
 
 #### Section 4: Tool Usage Chart
@@ -174,9 +174,9 @@ Use a blockquote with emoji bullets — one fact per line:
 >
 > 🌙 Your most productive hour is 3 PM with 42.3M tokens. Night owl alert: 13.6K messages between midnight-1AM.
 >
-> 🏃 Longest marathon session: 5.4 days straight on llama-index.
+> 🏃 Longest marathon session: 8.2 hours straight on my-saas-app.
 >
-> 💸 Your priciest single session: 16.9M tokens on monorepo (March 28) — roughly $127 in one sitting.
+> 💸 Your priciest single session: 16.9M tokens on api-gateway (Jan 18) — roughly $127 in one sitting.
 >
 > 📦 You've used {N} different Claude Code versions in {days} days. Bleeding-edge energy.
 >
