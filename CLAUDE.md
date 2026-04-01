@@ -63,7 +63,9 @@ Run additional custom SQL queries as needed to fill in data — don't limit your
 Use a markdown heading with emoji:
 
 **🦆 ClauDuck — Your Claude Code Analytics Dashboard**
-**Period:** {earliest_date} → {latest_date} ({days} days)
+**Period:** {earliest_date} → {latest_date} ({total_days} days)
+
+Compute {earliest_date}, {latest_date}, and {total_days} from the actual data — do NOT hardcode any date range.
 
 ---
 
@@ -176,7 +178,7 @@ Use a blockquote with emoji bullets — one fact per line:
 >
 > 💸 Your priciest single session: 16.9M tokens on monorepo (March 28) — roughly $127 in one sitting.
 >
-> 📦 You've used 15 different Claude Code versions in 30 days. Bleeding-edge energy.
+> 📦 You've used {N} different Claude Code versions in {days} days. Bleeding-edge energy.
 >
 > 🤖 Bash is your most-called tool (28.5K times) — you trust the terminal more than the editor.
 
@@ -189,23 +191,24 @@ Provide a concise **all-time summary** paragraph with bold stats — the user's 
 
 > 📋 **All-Time Summary**
 >
-> Across **{days} days**, you've run **{total_sessions} sessions** in **{total_projects} projects**, exchanging **{total_messages} messages** with Claude. You consumed **{total_tokens}M tokens** ({input_M}M input, {output_M}M output, {cache_M}M cache reads) over **{total_hours} hours** of session time. Your AI assistants made **{tool_calls} tool calls**, averaging **{avg_tools_per_session} tools/session**. Estimated total spend: **${total_cost}**.
+> Across **{total_days} days** (all time), you've run **{total_sessions} sessions** in **{total_projects} projects**, exchanging **{total_messages} messages** with Claude. You consumed **{total_tokens}M tokens** ({input_M}M input, {output_M}M output, {cache_M}M cache reads) over **{total_hours} hours** of session time. Your AI assistants made **{tool_calls} tool calls**, averaging **{avg_tools_per_session} tools/session**. Estimated total spend: **${total_cost}**.
 
 Fill in all values from SQL queries. This is the "headline" stat — make it feel complete.
 
 #### Section 10: Motivational Quote
 
-End with a relevant programming or productivity quote in a blockquote:
+End with a relevant programming or productivity quote. Use plain text — no italics or special formatting that breaks in terminals:
 
-> 💬 *"First, solve the problem. Then, write the code."* — John Johnson
+> 💬 "First, solve the problem. Then, write the code." — John Johnson
 >
 > You've written 189K messages across 23 projects. That's solving real problems. Keep shipping. 🚀
 
-Pick a quote that relates to the user's patterns (e.g. if they work late, pick a "persistence" quote; if they use many tools, pick a "craftsmanship" quote).
+Pick a quote that relates to the user's patterns (e.g. if they work late, pick a "persistence" quote; if they use many tools, pick a "craftsmanship" quote). Keep it simple — just the quote in double quotes, an em dash, and the author name. No markdown formatting on the quote itself.
 
 ### Rendering Rules
 
-1. **Always use real data** — run SQL queries to get exact numbers. Never invent stats.
+1. **All-time data** — show ALL data in the database, not just recent. Never filter by a fixed date range (no "last 30 days" or "last 14 days"). The period is always from earliest to latest session.
+2. **Always use real data** — run SQL queries to get exact numbers. Never invent stats.
 2. **Scale bar charts proportionally** — the longest bar should fill the available width.
 3. **NO box-drawing borders** — no `┌ ┐ └ ┘ │ ─` or `╔ ╗ ╚ ╝ ║ ═`. Use markdown tables, blockquotes, headings, and `---` instead.
 4. **Use block elements for charts** — `█ ▇ ▆ ▅ ▄ ▃ ▂ ▁ ░ ▒ ▓` for bars and heatmaps inside code blocks.
