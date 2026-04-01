@@ -7,7 +7,7 @@ import { createReadStream, existsSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import { parseTimestamp } from "./parse.js";
+import { parseTimestamp, EVENT_TYPE } from "./parse.js";
 import { batchInsertEvents } from "./insert.js";
 
 const COLUMNS = ["type", "session_id", "timestamp", "display", "project_name"];
@@ -31,7 +31,7 @@ export async function loadHistory(conn: DuckDBConnection): Promise<number> {
       const obj = JSON.parse(line);
       const ts = parseTimestamp(obj.timestamp);
       rows.push([
-        "history",
+        EVENT_TYPE.HISTORY,
         obj.sessionId ?? null,
         ts,
         obj.display ?? "",

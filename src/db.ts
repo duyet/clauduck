@@ -12,6 +12,8 @@ export async function openDatabase(
   path: string = DEFAULT_DB_PATH,
   options?: { fresh?: boolean },
 ): Promise<DuckDBConnection> {
+  closeDatabase();
+
   if (options?.fresh) {
     for (const suffix of ["", ".wal"]) {
       const p = path + suffix;
@@ -29,6 +31,8 @@ export async function openDatabase(
 export async function openReadOnly(
   path: string = DEFAULT_DB_PATH,
 ): Promise<DuckDBConnection> {
+  closeDatabase();
+
   instance = await DuckDBInstance.create(path, {
     access_mode: "READ_ONLY",
   });

@@ -19,6 +19,12 @@ describe("parseTimestamp", () => {
     expect(d!.getFullYear()).toBeGreaterThanOrEqual(2024);
   });
 
+  it("parses Unix seconds timestamp (10-digit)", () => {
+    const d = parseTimestamp(1710489000);
+    expect(d).toBeInstanceOf(Date);
+    expect(d!.getFullYear()).toBeGreaterThanOrEqual(2024);
+  });
+
   it("returns null for null/undefined", () => {
     expect(parseTimestamp(null)).toBeNull();
     expect(parseTimestamp(undefined)).toBeNull();

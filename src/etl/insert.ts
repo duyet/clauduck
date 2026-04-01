@@ -57,26 +57,3 @@ export async function batchInsertEvents(
     if (sql) await conn.run(sql);
   }
 }
-
-// Legacy function for backward compatibility during migration
-export function buildInsertSQL(table: string, rows: unknown[][]): string {
-  if (rows.length === 0) return "";
-  const valueStrings = rows.map((row) => {
-    const vals = row.map(escapeValue).join(", ");
-    return `(${vals})`;
-  });
-  return `INSERT INTO ${table} VALUES ${valueStrings.join(",\n")}`;
-}
-
-export async function batchInsert(
-  conn: DuckDBConnection,
-  table: string,
-  rows: unknown[][],
-  batchSize = 1000,
-): Promise<void> {
-  for (let i = 0; i < rows.length; i += batchSize) {
-    const batch = rows.slice(i, i + batchSize);
-    const sql = buildInsertSQL(table, batch);
-    if (sql) await conn.run(sql);
-  }
-}

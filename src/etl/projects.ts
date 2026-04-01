@@ -8,7 +8,7 @@ import { createReadStream, existsSync, readdirSync, statSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { join, basename } from "node:path";
 import { homedir } from "node:os";
-import { parseTimestamp, extractProjectName } from "./parse.js";
+import { parseTimestamp, extractProjectName, extractTextContent, EVENT_TYPE } from "./parse.js";
 import { batchInsertEvents } from "./insert.js";
 import { runQuery } from "../db.js";
 
@@ -133,38 +133,22 @@ async function processProjectSession(
           msgTools.push(toolName);
           toolCount++;
           toolRows.push([
-            "tool_call", sessionId, "projects", projectName, ts,
+            EVENT_TYPE.TOOL_CALL, sessionId, "projects", projectName, ts,
             model, toolName, (b.id as string) ?? "", inputT, outputT,
           ]);
         }
       }
     }
 
-    // Extract text content
-    let textContent = "";
-    if (Array.isArray(content)) {
-      const textParts = content
-        .filter(
-          (b): b is Record<string, unknown> =>
-            typeof b === "object" && b !== null &&
-            (b as Record<string, unknown>).type === "text",
-        )
-        .map((b) => (b.text as string) ?? "");
-      textContent = textParts.join("\n").slice(0, 2000);
-    } else if (typeof content === "string") {
-      textContent = content.slice(0, 2000);
-    }
+    let textContent = extractTextContent(content);
 
     if (msgType === "user" || msgType === "assistant") {
       if (msgType === "user" && !textContent) {
-        const rawContent = apiMsg.content;
-        if (typeof rawContent === "string") {
-          textContent = rawContent.slice(0, 2000);
-        }
+        textContent = extractTextContent(apiMsg.content);
       }
 
       messageRows.push([
-        "message", sessionId, "projects", projectName,
+        EVENT_TYPE.MESSAGE, sessionId, "projects", projectName,
         (msg.uuid as string) ?? "",
         msgType, ts, model || null,
         inputT, outputT, cacheRead, cacheCreate,
@@ -182,7 +166,7 @@ async function processProjectSession(
   }
 
   const sessionRow = [
-    "session", sessionId, "projects", projectDir, projectName,
+    EVENT_TYPE.SESSION, sessionId, "projects", projectDir, projectName,
     firstTs, lastTs, fpath, fileSizeMb, duration,
     messagesRaw.length, userCount, assistantCount,
     totalInput, totalOutput, totalCacheRead, totalCacheCreation,

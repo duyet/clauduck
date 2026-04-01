@@ -8,7 +8,7 @@ import { createReadStream, existsSync, readdirSync, statSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { join, basename } from "node:path";
 import { homedir } from "node:os";
-import { parseTimestamp } from "./parse.js";
+import { parseTimestamp, extractTextContent, EVENT_TYPE } from "./parse.js";
 import { batchInsertEvents } from "./insert.js";
 
 const TOOL_NAME_MAP: Record<string, string> = {
@@ -95,17 +95,12 @@ export async function loadTranscripts(
 
       if (msgType === "user") {
         userCount++;
-        let content = msg.content;
-        if (typeof content === "string") {
-          content = content.slice(0, 2000);
-        } else {
-          content = String(content ?? "").slice(0, 2000);
-        }
+        const text = extractTextContent(msg.content) || String(msg.content ?? "").slice(0, 2000);
 
         messageRows.push([
-          "message", sessionId, "transcripts", "user", ts,
+          EVENT_TYPE.MESSAGE, sessionId, "transcripts", "user", ts,
           0, 0, 0, 0,
-          content as string, (content as string).length,
+          text, text.length,
         ]);
       } else if (msgType === "tool_use") {
         const rawName = (msg.tool_name as string) ?? "unknown";
@@ -114,31 +109,17 @@ export async function loadTranscripts(
         toolCount++;
 
         toolRows.push([
-          "tool_call", sessionId, "transcripts", ts,
+          EVENT_TYPE.TOOL_CALL, sessionId, "transcripts", ts,
           toolName, 0, 0,
         ]);
       } else if (msgType === "assistant") {
         assistantCount++;
-        let content = msg.content;
-        if (Array.isArray(content)) {
-          const textParts = content
-            .filter(
-              (b): b is Record<string, unknown> =>
-                typeof b === "object" && b !== null &&
-                (b as Record<string, unknown>).type === "text",
-            )
-            .map((b) => ((b as Record<string, unknown>).text as string) ?? "");
-          content = textParts.join("\n").slice(0, 2000);
-        } else if (typeof content === "string") {
-          content = content.slice(0, 2000);
-        } else {
-          content = "";
-        }
+        const text = extractTextContent(msg.content);
 
         messageRows.push([
-          "message", sessionId, "transcripts", "assistant", ts,
+          EVENT_TYPE.MESSAGE, sessionId, "transcripts", "assistant", ts,
           0, 0, 0, 0,
-          (content as string) || null, (content as string) ? (content as string).length : 0,
+          text || null, text ? text.length : 0,
         ]);
       }
     }
@@ -149,9 +130,9 @@ export async function loadTranscripts(
     }
 
     sessionRows.push([
-      "session", sessionId, "transcripts", firstTs, lastTs,
+      EVENT_TYPE.SESSION, sessionId, "transcripts", firstTs, lastTs,
       fpath, fileSizeMb, duration,
-      lines.length, userCount, assistantCount,
+      userCount + assistantCount, userCount, assistantCount,
       0, 0, 0, 0, // no token data in transcripts
       tools.size > 0 ? [...tools] : null, toolCount,
     ]);

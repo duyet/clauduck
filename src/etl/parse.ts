@@ -1,7 +1,15 @@
 /**
- * Timestamp parsing and project name extraction utilities.
- * Ported from load.py lines 24-47.
+ * Shared ETL utilities: parsing, extraction, and constants.
  */
+
+export type EventType = "session" | "message" | "tool_call" | "history";
+
+export const EVENT_TYPE = {
+  SESSION: "session" as const,
+  MESSAGE: "message" as const,
+  TOOL_CALL: "tool_call" as const,
+  HISTORY: "history" as const,
+};
 
 export function parseTimestamp(tsVal: unknown): Date | null {
   if (tsVal == null) return null;
@@ -29,6 +37,21 @@ export function parseTimestamp(tsVal: unknown): Date | null {
   }
 
   return null;
+}
+
+export function extractTextContent(content: unknown, maxLen = 2000): string {
+  if (Array.isArray(content)) {
+    const textParts = content
+      .filter(
+        (b): b is Record<string, unknown> =>
+          typeof b === "object" && b !== null &&
+          (b as Record<string, unknown>).type === "text",
+      )
+      .map((b) => (b.text as string) ?? "");
+    return textParts.join("\n").slice(0, maxLen);
+  }
+  if (typeof content === "string") return content.slice(0, maxLen);
+  return "";
 }
 
 export function extractProjectName(dirName: string): string {
