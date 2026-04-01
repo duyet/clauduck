@@ -47,7 +47,9 @@ This runs 15 built-in analytics queries and prints results.
 ## Step 4: Present the Dashboard
 
 After running queries, present a rich, visual dashboard. This is the most important step.
-You are rendering a **terminal dashboard** using only markdown and Unicode. Make it beautiful.
+You are rendering a **terminal dashboard** using only markdown and Unicode block characters.
+
+**IMPORTANT: Do NOT use box-drawing border characters (┌ ┐ └ ┘ │ ─ ├ ┤ ┬ ┴ ┼ ╔ ╗ ╚ ╝ ║ ═).** They render poorly in most terminals and markdown viewers. Instead, use markdown headings, bold text, horizontal rules (`---`), blockquotes (`>`), and indentation for structure.
 
 ### Dashboard Structure
 
@@ -56,109 +58,105 @@ Run additional custom SQL queries as needed to fill in data — don't limit your
 
 ---
 
-#### Section 1: Header Banner
+#### Section 1: Header
 
-```
-╔══════════════════════════════════════════════════════════════╗
-║  🦆 ClauDuck — Your Claude Code Analytics Dashboard        ║
-║  Period: {earliest_date} → {latest_date} ({days} days)     ║
-╚══════════════════════════════════════════════════════════════╝
-```
+Use a markdown heading with emoji:
+
+**🦆 ClauDuck — Your Claude Code Analytics Dashboard**
+**Period:** {earliest_date} → {latest_date} ({days} days)
+
+---
 
 #### Section 2: KPI Cards
 
-Render 4-6 key metrics as inline cards using box-drawing characters:
+Render key metrics as a markdown table — clean and always aligned:
 
-```
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│ 📊 Sessions │ │ 💬 Messages │ │ 🪙 Tokens   │ │ 🛠️ Tools    │ │ ⏱️ Hours    │
-│    1,397    │ │   189,210   │ │   167.7M    │ │   63,226    │ │   1,774     │
-└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
-```
+| 📊 Sessions | 💬 Messages | 🪙 Tokens | 🛠️ Tool Calls | ⏱️ Hours | 📁 Projects |
+|:-----------:|:-----------:|:---------:|:-------------:|:--------:|:-----------:|
+| 1,397       | 189,210     | 167.7M    | 63,226        | 1,774    | 23          |
 
 #### Section 3: Top Projects Leaderboard
 
-Use a ranked list with bar charts made from Unicode block characters (▓▒░ or █▇▆▅▄▃▂▁).
-Scale bars proportionally to the highest value:
+Use a ranked list with inline bar charts made from block characters (█░).
+Scale bars proportionally to the highest value. Use **bold** for the #1 project:
+
+🏆 **Top Projects by Token Usage**
 
 ```
-🏆 Top Projects by Token Usage
-
- 1. monorepo              56.3M ████████████████████████████░░░░ 
- 2. clickhouse/monitor    35.7M █████████████████░░░░░░░░░░░░░░░
- 3. llama-index           33.4M ████████████████░░░░░░░░░░░░░░░░
- 4. stamp                 15.2M ████████░░░░░░░░░░░░░░░░░░░░░░░░
- 5. agentstate            10.6M █████░░░░░░░░░░░░░░░░░░░░░░░░░░░
+ 1. monorepo            56.3M ██████████████████████████████░░
+ 2. clickhouse/monitor  35.7M ███████████████████░░░░░░░░░░░░░
+ 3. llama-index         33.4M ██████████████████░░░░░░░░░░░░░░
+ 4. stamp               15.2M ████████░░░░░░░░░░░░░░░░░░░░░░░░
+ 5. agentstate          10.6M █████░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ```
 
 #### Section 4: Tool Usage Chart
 
-Horizontal bar chart for top 10 tools:
+Horizontal bar chart for top 10 tools inside a code block:
+
+🔧 **Tool Usage**
 
 ```
-🔧 Tool Usage
-
- Bash   ██████████████████████████████ 28,567
- Read   ████████████░░░░░░░░░░░░░░░░░░ 11,827
- Edit   █████████░░░░░░░░░░░░░░░░░░░░░  8,817
- Grep   ████░░░░░░░░░░░░░░░░░░░░░░░░░░  3,714
- Agent  ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  2,708
- ...
+ Bash            ██████████████████████████████ 28,567
+ Read            ████████████░░░░░░░░░░░░░░░░░░ 11,827
+ Edit            █████████░░░░░░░░░░░░░░░░░░░░░  8,817
+ Grep            ████░░░░░░░░░░░░░░░░░░░░░░░░░░  3,714
+ Agent           ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  2,708
 ```
 
 #### Section 5: Cost Breakdown
 
-Use a table with a visual cost proportion:
+Use a markdown table with a bar column for visual proportion:
 
-```
-💰 Estimated Cost by Model
+💰 **Estimated Cost by Model**
 
- Model               │ Input (M) │ Output (M) │  Est. Cost │ Share
- ─────────────────────┼───────────┼────────────┼────────────┼─────────────
- claude-opus-4-6      │     0.92  │      9.59  │    $733.00 │ █████████░ 57%
- glm-4.7              │   107.87  │      5.60  │    $407.67 │ █████░░░░░ 32%
- step-3.5-flash       │    34.95  │      0.08  │    $106.07 │ █░░░░░░░░░  8%
- ─────────────────────┼───────────┼────────────┼────────────┼───────────
- TOTAL                │           │            │  $1,276.00 │
-```
+| Model | Input (M) | Output (M) | Est. Cost | Share |
+|-------|----------:|-----------:|----------:|-------|
+| claude-opus-4-6 | 0.92 | 9.59 | $733.00 | █████████░ 57% |
+| glm-4.7 | 107.87 | 5.60 | $407.67 | █████░░░░░ 32% |
+| step-3.5-flash | 34.95 | 0.08 | $106.07 | █░░░░░░░░░ 8% |
+| **TOTAL** | | | **$1,276** | |
 
 #### Section 6: Activity Heatmap
 
-Render a 7×24 heatmap (days × hours) using shade characters. Query the data grouped by day-of-week and hour:
+Render a 7x24 heatmap (days x hours) using shade characters inside a code block.
+Query the data grouped by day-of-week and hour:
 
 ```sql
-SELECT extract(isodow FROM timestamp) as dow, extract(hour FROM timestamp) as hour,
-       count(*) as msgs FROM messages WHERE timestamp IS NOT NULL GROUP BY 1, 2
+SELECT extract(isodow FROM timestamp)::INT as dow,
+       extract(hour FROM timestamp)::INT as hour,
+       count(*) as msgs
+FROM messages WHERE timestamp IS NOT NULL GROUP BY dow, hour ORDER BY dow, hour
 ```
 
 Render as:
 
-```
-📅 Activity Heatmap (messages by day × hour)
+📅 **Activity Heatmap** (messages by day x hour)
 
+```
         00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23
   Mon   ▓▓ ▓▓ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ▒▒ ▒▒ ▓▓ ▒▒ ▓▓ ██ ██ ▓▓ ▒▒ ▓▓ ▓▓ ▒▒ ▒▒ ▒▒ ▓▓
   Tue   ...
   ...
   Sun   ...
 
-  Legend: ░░ quiet  ▒▒ moderate  ▓▓ busy  ██ peak
+  ░░ quiet  ▒▒ moderate  ▓▓ busy  ██ peak
 ```
 
 Use 4 intensity levels based on quartile thresholds of the message counts.
 
 #### Section 7: Weekly Trend Sparkline
 
-Show a mini trend chart of tokens per week:
+Show a mini trend chart of tokens per week inside a code block:
+
+📈 **Weekly Token Trend (M)**
 
 ```
-📈 Weekly Token Trend (M)
-
-  Mar 02 ▂▂▂  6.8M
-  Mar 09 ████ 58.1M  ← peak week
-  Mar 16 ████ 56.6M
-  Mar 23 ████ 42.8M
-  Mar 30 ▁▁▁  3.4M
+  Mar 02  ▂   6.8M
+  Mar 09  █  58.1M  ← peak week
+  Mar 16  █  56.6M
+  Mar 23  ▆  42.8M
+  Mar 30  ▁   3.4M
 ```
 
 Use ▁▂▃▄▅▆▇█ characters scaled to max value.
@@ -166,46 +164,42 @@ Use ▁▂▃▄▅▆▇█ characters scaled to max value.
 #### Section 8: Fun Facts & Insights
 
 Generate 5-7 interesting observations. Be specific with numbers and add personality.
-Use callout boxes:
+Use a blockquote with emoji bullets — one fact per line:
 
-```
-┌─ 🎯 Fun Facts ─────────────────────────────────────────────┐
-│                                                             │
-│  🔄 You typed "/clear" 2,717 times — that's 90× per day!  │
-│                                                             │
-│  🌙 Your most productive hour is 3 PM with 42.3M tokens.  │
-│     Night owl alert: 13.6K messages between midnight-1AM.  │
-│                                                             │
-│  🏃 Longest marathon: 5.4 days straight on llama-index.    │
-│                                                             │
-│  💸 Your priciest single session: 16.9M tokens on          │
-│     monorepo (March 28) — roughly $XX in one sitting.      │
-│                                                             │
-│  📦 You've used 15 different Claude Code versions in       │
-│     30 days. Bleeding-edge energy.                         │
-│                                                             │
-│  🤖 Bash is your most-called tool (28.5K times) — you     │
-│     trust the terminal more than the editor.               │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+> 🎯 **Fun Facts**
+>
+> 🔄 You typed "/clear" 2,717 times — that's 90x per day!
+>
+> 🌙 Your most productive hour is 3 PM with 42.3M tokens. Night owl alert: 13.6K messages between midnight-1AM.
+>
+> 🏃 Longest marathon session: 5.4 days straight on llama-index.
+>
+> 💸 Your priciest single session: 16.9M tokens on monorepo (March 28) — roughly $127 in one sitting.
+>
+> 📦 You've used 15 different Claude Code versions in 30 days. Bleeding-edge energy.
+>
+> 🤖 Bash is your most-called tool (28.5K times) — you trust the terminal more than the editor.
 
 Make each fact data-driven and derived from actual query results. Don't make things up.
 Compute new queries if needed (e.g. "busiest single day", "most tool-heavy session").
 
-#### Section 9: Motivational Quote
+#### Section 9: Total Summary
 
-End with a relevant programming or productivity quote, rotated based on the data:
+Provide a concise **all-time summary** paragraph with bold stats — the user's "career stats":
 
-```
-┌─ 💬 ──────────────────────────────────────────────────────┐
-│  "First, solve the problem. Then, write the code."        │
-│                                    — John Johnson          │
-│                                                            │
-│  You've written 189K messages across 23 projects.          │
-│  That's solving real problems. Keep shipping. 🚀           │
-└────────────────────────────────────────────────────────────┘
-```
+> 📋 **All-Time Summary**
+>
+> Across **{days} days**, you've run **{total_sessions} sessions** in **{total_projects} projects**, exchanging **{total_messages} messages** with Claude. You consumed **{total_tokens}M tokens** ({input_M}M input, {output_M}M output, {cache_M}M cache reads) over **{total_hours} hours** of session time. Your AI assistants made **{tool_calls} tool calls**, averaging **{avg_tools_per_session} tools/session**. Estimated total spend: **${total_cost}**.
+
+Fill in all values from SQL queries. This is the "headline" stat — make it feel complete.
+
+#### Section 10: Motivational Quote
+
+End with a relevant programming or productivity quote in a blockquote:
+
+> 💬 *"First, solve the problem. Then, write the code."* — John Johnson
+>
+> You've written 189K messages across 23 projects. That's solving real problems. Keep shipping. 🚀
 
 Pick a quote that relates to the user's patterns (e.g. if they work late, pick a "persistence" quote; if they use many tools, pick a "craftsmanship" quote).
 
@@ -213,9 +207,9 @@ Pick a quote that relates to the user's patterns (e.g. if they work late, pick a
 
 1. **Always use real data** — run SQL queries to get exact numbers. Never invent stats.
 2. **Scale bar charts proportionally** — the longest bar should fill the available width.
-3. **Use Unicode box-drawing** — `┌ ┐ └ ┘ │ ─ ├ ┤ ┬ ┴ ┼` for clean boxes.
-4. **Use block elements for charts** — `█ ▇ ▆ ▅ ▄ ▃ ▂ ▁ ░ ▒ ▓` for bars and heatmaps.
-5. **Emoji sparingly** — one per section header, one per fun fact. Not in data.
+3. **NO box-drawing borders** — no `┌ ┐ └ ┘ │ ─` or `╔ ╗ ╚ ╝ ║ ═`. Use markdown tables, blockquotes, headings, and `---` instead.
+4. **Use block elements for charts** — `█ ▇ ▆ ▅ ▄ ▃ ▂ ▁ ░ ▒ ▓` for bars and heatmaps inside code blocks.
+5. **Emoji sparingly** — one per section header, one per fun fact. Not in data cells.
 6. **Numbers are human-readable** — use commas (1,397), round decimals, use M/K suffixes.
 7. **Highlight extremes** — annotate with ← peak, ← lowest, etc.
 8. **Keep it scannable** — a user should grasp the story in 10 seconds.
@@ -226,22 +220,22 @@ Beyond query.py output, run these additional queries for the dashboard:
 
 ```sql
 -- Busiest single day
-SELECT date_trunc('day', first_ts)::DATE as day, count(*) as sessions,
+SELECT date_trunc('day', first_ts)::DATE as d, count(*) as sessions,
        sum(user_messages + assistant_messages) as msgs
-FROM sessions WHERE first_ts IS NOT NULL GROUP BY 1 ORDER BY msgs DESC LIMIT 1;
+FROM sessions WHERE first_ts IS NOT NULL GROUP BY d ORDER BY msgs DESC LIMIT 1;
 
--- Day × hour heatmap data
+-- Day x hour heatmap data
 SELECT extract(isodow FROM timestamp)::INT as dow,
        extract(hour FROM timestamp)::INT as hour,
        count(*) as msgs
-FROM messages WHERE timestamp IS NOT NULL GROUP BY 1, 2 ORDER BY 1, 2;
+FROM messages WHERE timestamp IS NOT NULL GROUP BY dow, hour ORDER BY dow, hour;
 
 -- Average session length trend
-SELECT date_trunc('week', first_ts)::DATE as week,
+SELECT date_trunc('week', first_ts)::DATE as w,
        round(avg(duration_minutes), 0) as avg_min,
        round(avg(user_messages), 0) as avg_user_msgs
 FROM sessions WHERE first_ts IS NOT NULL AND duration_minutes > 0
-GROUP BY 1 ORDER BY 1;
+GROUP BY w ORDER BY w;
 
 -- Most tool-heavy single session
 SELECT project_name, tool_call_count, duration_minutes, first_ts::DATE
@@ -252,20 +246,17 @@ FROM sessions ORDER BY tool_call_count DESC LIMIT 1;
 
 After the dashboard, invite the user to explore further:
 
-```
-┌─ 🔍 Explore More ──────────────────────────────────────────┐
-│                                                             │
-│  Ask me anything! I can run custom SQL against your data.   │
-│                                                             │
-│  Try:                                                       │
-│  • "Show me my most expensive sessions this week"          │
-│  • "Which project uses Agent tool the most?"               │
-│  • "What's my average session length by project?"          │
-│  • "Show tool usage trends over time"                      │
-│                                                             │
-│  Tables: sessions · messages · tool_calls · history         │
-└─────────────────────────────────────────────────────────────┘
-```
+> 🔍 **Explore More**
+>
+> Ask me anything! I can run custom SQL against your data.
+>
+> Try:
+> - "Show me my most expensive sessions this week"
+> - "Which project uses Agent tool the most?"
+> - "What's my average session length by project?"
+> - "Show tool usage trends over time"
+>
+> **Tables:** `sessions` · `messages` · `tool_calls` · `history`
 
 ### Schema Reference (for custom queries)
 
