@@ -4,7 +4,12 @@ You are setting up ClauDuck — a DuckDB-based analytics tool for Claude Code se
 
 Follow these steps exactly. Do not skip any step.
 
-## Step 1: Clone and install
+## Step 1: Detect environment and install
+
+First, check if you are already inside the ClauDuck project directory. Look for `load.py` and `query.py` in the current working directory.
+
+- **If `load.py` exists in the current directory**: you are already in the ClauDuck project. Skip cloning — just run `uv sync`.
+- **Otherwise**: clone the repo and cd into it:
 
 ```bash
 git clone https://github.com/duyet/clauduck.git /tmp/clauduck
@@ -16,8 +21,6 @@ If `uv` is not installed, install it first:
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-
-If the repo is already cloned, just `cd` to it and run `uv sync`.
 
 ## Step 2: Load session data
 

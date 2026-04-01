@@ -14,9 +14,11 @@ Read and follow the instructions at https://raw.githubusercontent.com/duyet/clau
 
 Claude will automatically:
 1. Read the setup instructions
-2. Clone the repo and install dependencies
-3. Load your `~/.claude` session data into DuckDB
+2. Detect if it's already in the ClauDuck project (skips clone) or clone fresh
+3. Install dependencies and load your `~/.claude` session data into DuckDB
 4. Run analytics and present your insights
+
+> **Already inside the repo?** The same prompt works — Claude detects `load.py` in the current directory and skips cloning.
 
 ## Manual Setup
 
