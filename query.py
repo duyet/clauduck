@@ -78,16 +78,24 @@ def main():
     parser.add_argument("--since", help="Start date (YYYY-MM-DD)")
     parser.add_argument("--until", help="End date (YYYY-MM-DD)")
     parser.add_argument("--last", help="Relative range: 7d, 4w, 2m")
+    parser.add_argument("--source", help="Filter by source: projects, transcripts, or all (default: all)")
     args = parser.parse_args()
 
     con = duckdb.connect(str(DB_PATH), read_only=True)
 
-    # Build date filter
+    # Build filters
     date_filter_sessions = ""
     date_filter_messages = ""
     date_filter_tools = ""
     date_filter_history = ""
     period_label = "all time"
+
+    # Source filter
+    if args.source and args.source != "all":
+        date_filter_sessions += f"AND source = '{args.source}'"
+        date_filter_messages += f"AND source = '{args.source}'"
+        date_filter_tools += f"AND source = '{args.source}'"
+        period_label += f" ({args.source} only)"
 
     if args.last:
         since_dt = parse_last(args.last)
@@ -131,6 +139,21 @@ def main():
             max(last_ts)::DATE as latest
         FROM sessions
         WHERE 1=1 {sf}
+    """)
+
+    run_query(con, "1b. DATA SOURCES", f"""
+        SELECT
+            source,
+            count(*) as sessions,
+            sum(user_messages) as user_msgs,
+            sum(tool_call_count) as tool_calls,
+            round(sum(total_input_tokens + total_output_tokens) / 1e6, 1) as tokens_M,
+            min(first_ts)::DATE as earliest,
+            max(last_ts)::DATE as latest
+        FROM sessions
+        WHERE 1=1 {sf}
+        GROUP BY 1
+        ORDER BY earliest
     """)
 
     run_query(con, "2. DAILY ACTIVITY", f"""
