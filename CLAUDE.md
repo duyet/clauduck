@@ -4,30 +4,18 @@ You are setting up ClauDuck — a DuckDB-based analytics tool for Claude Code se
 
 Follow these steps exactly. Do not skip any step.
 
-## Step 1: Detect environment and install
+## Step 1: Run ClauDuck
 
-First, check if you are already inside the ClauDuck project directory. Look for `package.json` in the current working directory with `"name": "clauduck"`.
-
-- **If inside the ClauDuck project**: run `bun install` (or `npm install`) then `bun run build`.
-- **Otherwise**: run directly with npx — no cloning needed:
+Run ClauDuck via npx to parse all Claude Code session data from `~/.claude` into DuckDB and run analytics:
 
 ```bash
 npx clauduck
 ```
 
-Or if you want to clone for development:
-```bash
-git clone https://github.com/duyet/clauduck.git /tmp/clauduck
-cd /tmp/clauduck
-bun install && bun run build
-```
-
-## Step 2: Load session data and run analytics
-
-Run ClauDuck to parse all Claude Code session data from `~/.claude` into DuckDB and run analytics:
+For custom SQL queries, use:
 
 ```bash
-npx clauduck
+npx clauduck query "SELECT ... FROM events WHERE ..."
 ```
 
 This reads:
@@ -40,7 +28,7 @@ It creates `~/.claude/clauduck.db` with a single `events` table (types: session,
 
 Then runs 15 built-in analytics queries and prints results.
 
-## Step 4: Present the Dashboard
+## Step 2: Present the Dashboard
 
 After running queries, present a rich, visual dashboard. This is the most important step.
 You are rendering a **terminal dashboard** using only markdown and Unicode block characters.
@@ -50,7 +38,7 @@ You are rendering a **terminal dashboard** using only markdown and Unicode block
 ### Dashboard Structure
 
 Render the following sections IN ORDER. Use the exact formatting patterns shown below.
-Run additional custom SQL queries as needed to fill in data — don't limit yourself to query.py output.
+Run additional custom SQL queries as needed to fill in data — use `npx clauduck query "SQL"` for custom queries.
 
 ---
 
@@ -215,7 +203,7 @@ Pick a quote that relates to the user's patterns (e.g. if they work late, pick a
 
 ### Custom Queries to Run
 
-Beyond query.py output, run these additional queries for the dashboard:
+Beyond the built-in analytics output, run these additional queries for the dashboard using `npx clauduck query "SQL"`:
 
 ```sql
 -- Busiest single day
@@ -241,7 +229,7 @@ SELECT project_name, tool_call_count, duration_minutes, first_ts::DATE
 FROM events WHERE type='session' ORDER BY tool_call_count DESC LIMIT 1;
 ```
 
-## Step 5: Offer interactive exploration
+## Step 3: Offer interactive exploration
 
 After the dashboard, invite the user to explore further:
 

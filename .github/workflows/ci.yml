@@ -25,28 +25,35 @@ jobs:
       - name: Test
         run: bun run test
 
-  publish:
+  release:
     needs: ci
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - uses: oven-sh/setup-bun@v2
-
       - run: bun install
 
-      - run: bun run build
-
-      - name: Publish to npm
-        run: npm publish --access public
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: npx changeset publish
+          version: npx changeset version
+          commit: "chore: version packages"
+          title: "chore: version packages"
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
