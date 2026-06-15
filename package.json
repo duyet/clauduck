@@ -32,15 +32,15 @@
   "license": "MIT",
   "dependencies": {
     "@duckdb/node-api": "^1.5.1-r.1",
-    "ink": "^5.2.0",
+    "ink": "^7.0.0",
     "ink-text-input": "^6.0.0",
     "@inkjs/ui": "^2.0.0",
-    "react": "^18.3.1"
+    "react": "^19.0.0"
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
     "@types/node": "^25.0.0",
-    "@types/react": "^18.3.0",
+    "@types/react": "^19.0.0",
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",
     "typescript": "^6.0.0",
